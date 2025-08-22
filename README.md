@@ -19,7 +19,7 @@ With the help of the base template generated when creating a new Phoenix project
     </div>
     </td>
     <td>
-    <img src="https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/assets/readme-llm-eval.png" alt="Favorite city" width=100%>
+    <img src="https://github.com/CarlitosObr/prueba-tecnica-bravo/blob/main/images/favorites_page.png" alt="Favorite city" width=100%>
     <div align="center">
         <br><br>
         <div>Display the list with the cities marked as favorites, in order to view their weather.</div><br>
