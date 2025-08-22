@@ -75,4 +75,6 @@ Additionally, using more LiveView could accelerate development and allow for eas
 
 Implementing some form of caching could also improve the efficiency of displaying favorite cities, avoiding repeated database requests each time that view is accessed.
 
+Handle exceptions more effectively, since there can always be a gap where an error might occur. This is where another exception could be used to ensure that the functionality of the code does not break and can continue working normally, always providing some type of alert or message to the user.
+
 Finally, the project structure could be improved by better organizing directories and placing each piece of logic in its proper location, making the application easier to understand and maintain.
