@@ -61,3 +61,18 @@ With the help of the base template generated when creating a new Phoenix project
     </td>
   </tr>
 </table>
+
+## 🗣️ Trade-offs
+
+Due to attempting a quick implementation, some tasks were delegated that should ideally be handled on the server side rather than in the browser. Handling certain calls to third-party APIs in the client may expose keys that should remain private, which affects the security of the application. Application logic should reside entirely within the controllers, not the views, although some logic was placed in the views in this case.
+
+Additionally, exposing data is a poor practice. It is important to use more robust databases with proper authentication to prevent easy access to sensitive data. For practical purposes, an SQLite database was used, which may not be suitable for production environments.
+
+## 🗣️ Possible improvements
+The application could be dockerized, using Docker Compose to run one container for a more robust database, such as PostgreSQL, and another container for the Phoenix application. This setup would allow for more reliable and realistic testing.
+
+Additionally, using more LiveView could accelerate development and allow for easier-to-implement templates. However, this approach may present challenges under high user concurrency since processing occurs server-side, and in some cases, client-side handling might be preferable to reduce latency and ensure appropriate response times.
+
+Implementing some form of caching could also improve the efficiency of displaying favorite cities, avoiding repeated database requests each time that view is accessed.
+
+Finally, the project structure could be improved by better organizing directories and placing each piece of logic in its proper location, making the application easier to understand and maintain.
