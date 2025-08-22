@@ -3,8 +3,7 @@
 Elixir 1.18.4 or later
 Phoenix framework 1.8.0 or later
 
-Need to add .env file
-And add the api key for openwweatherorg
+Need to add .env file and add the api key for openwweatherorg
 
 # App
 
