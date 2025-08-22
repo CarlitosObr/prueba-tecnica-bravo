@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title default="App" suffix=" · Phoenix Framework">
+      {assigns[:page_title]}
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
+    </script>
+    <script>
+      (() => {
+        const setTheme = (theme) => {
+          if (theme === "system") {
+            localStorage.removeItem("phx:theme");
+            document.documentElement.removeAttribute("data-theme");
+          } else {
+            localStorage.setItem("phx:theme", theme);
+            document.documentElement.setAttribute("data-theme", theme);
+          }
+        };
+        const getFavoriteCities = (id, theme) => {
+          const divCities = document.getElementById('cities-div')
+          const divWeather = document.getElementById('current-weather-div')
+          if (id === "favorites") {
+            localStorage.setItem("phx:theme", theme);
+            document.documentElement.setAttribute("data-theme", theme);
+            while (divCities.firstChild) {
+                divCities.removeChild(divCities.firstChild);
+            }
+            getCities(id)
+          } else {
+            localStorage.setItem("phx:theme", theme);
+            document.documentElement.setAttribute("data-theme", theme);
+            while (divCities.firstChild) {
+                divCities.removeChild(divCities.firstChild);
+            }
+            while (divWeather.firstChild) {
+                divWeather.removeChild(divWeather.firstChild);
+            }
+          }
+        };
+        const getCities = (divType) => {
+          input = document.getElementById('enter-city')
+          city = input.value;
+          if(divType == "home"){
+            citiesCall = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=10&appid=${window.ENV.api_key}`
+          }else{
+            citiesCall = `api/cities`
+          }
+          fetch(citiesCall)
+            .then(res => {
+                if (!res.ok) throw res;
+                return res.json()
+            })
+            .then(data => {
+                displayCities(data, divType);
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        };
+        const displayCities = (data, divType) => {
+          div = document.getElementById('cities-div')
+          const getColumns = () => {
+            let columns = ""
+            if(divType === "home"){
+              length = data.length
+              read_data = data
+            }else{
+              length = data.data.length
+              read_data = data.data
+            }
+            for (let i = 0; i < length; i++) {
+                if(divType === "home"){
+                  name = read_data[i].name.concat(", ", read_data[i].state);
+                  button = "Favorite"
+                }else {
+                  name = read_data[i].name
+                  button = "Check"
+                }
+                let lat = toString(read_data[i].lat);
+                let lon = toString(read_data[i].lon);
+                let datos = {
+                  post:{name: name,
+                  lat: lat, 
+                  lon: lon}
+                }
+                columns += `<tr>
+                  <th>${name}</th>
+                  <th>
+                    <button type="button" class="fav-btn" data-index="${i}">${button}</button>
+                  </th>
+                  </tr>`
+            }
+
+            return columns;
+          };
+          
+          if(divType === "home"){
+            header = "Mark as favorite"
+          }else {
+            header = "Weather"
+          }
+          div.innerHTML = `
+              <table id="cities-table">
+                <tr>
+                  <th>City</th>
+                  <th>${header}</th>
+                </tr>
+                ${getColumns()}
+              </table>`;
+           
+           setEvent(div, data, divType)
+        };
+        const setEvent = (div, data, divType) => {
+
+          if(divType === "home"){
+            event = handleFavoriteClick
+            window.currentData = data
+          }else {
+            event = handleWeatherClick
+            window.currentData = data.data
+          }
+          div.removeEventListener("click", handleFavoriteClick);    
+          div.removeEventListener("click", handleWeatherClick);
+          div.addEventListener("click", event); 
+        };
+        function handleFavoriteClick(e){
+            let btn = e.target.closest(".fav-btn");
+            if (!btn) return;
+
+            let i = Number(btn.dataset.index);
+            let d = currentData[i];
+            if (!d) return;
+
+              let datos = {
+                post: {
+                  name: d.name.concat(", ", d.state),
+                  lat: String(d.lat),
+                  lon: String(d.lon),
+                }
+              }
+
+            storeFavoriteCity(datos);
+          }
+        function handleWeatherClick(e){
+            let btn = e.target.closest(".fav-btn");
+            if (!btn) return;
+
+            let i = Number(btn.dataset.index);
+            let d = currentData[i];
+            if (!d) return;
+
+            weatherCall = `https://api.openweathermap.org/data/3.0/onecall?lat=${d.lat}&lon=${d.lon}&units=metric&appid=${window.ENV.api_key}&exclude=minutely,alerts`
+
+            fetch(weatherCall)
+              .then(res => {
+                  if (!res.ok) throw res;
+                  return res.json()
+              })
+              .then(data => {
+                  displayWeather(data, d.name);
+              })
+              .catch(err => {
+                  console.log(err)
+              })
+        }
+        function getLocalHour(dt){
+          let dateUTC = new Date(dt * 1000);
+          let options = { timeZone: 'America/Mexico_City', hour: 'numeric', hour12: true };
+          let hourMX = dateUTC.toLocaleString('en-US', options);
+          
+          return hourMX
+        }
+        function getLocalDate(dt){
+          let dateUTC = new Date(dt * 1000);
+          let options = { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit', hour12: false };
+          let dateMX = dateUTC.toLocaleString('en-US', options);
+          
+          return dateMX
+        }
+        function getLeftDays(dt){
+          const date = new Date(dt * 1000);
+
+          const dayIndex = date.getDay();
+
+          const leftDays = 6 - dayIndex
+          
+          return leftDays
+        }
+        const displayWeather = (data, city) => {
+          div = document.getElementById('current-weather-div')
+          getLocalHour(data.current.dt)
+          leftDays = getLeftDays(data.current.dt)
+          let forecastDays = data.daily
+          let forecastHours = data.hourly
+          let icon = `http://openweathermap.org/img/wn/${data.current.weather[0].icon}@2x.png`
+          const getHoursAhead = (arrayHourly) =>{
+            let forecast = ""
+            for (let i = 1; i < 25; i++) {
+                let forecastHour = getLocalHour(arrayHourly[i].dt);
+                let temp = arrayHourly[i].temp;
+                let forecastIcon = `http://openweathermap.org/img/wn/${arrayHourly[i].weather[0].icon}@2x.png`;
+                forecast += `
+                             <p>${forecastHour}: ${temp}&deg;C</p>
+                            `
+            }
+
+            return forecast
+          };
+          const getLeftDaysWeather = (arrayDaily, days) =>{
+            let forecast = ""
+            for (let i = 1; i < days + 1; i++) {
+                let forecastDate = getLocalDate(arrayDaily[i].dt);
+                let min = arrayDaily[i].temp.min;
+                let max = arrayDaily[i].temp.max;
+                let forecastIcon = `http://openweathermap.org/img/wn/${arrayDaily[i].weather[0].icon}@2x.png`;
+                forecast += `<div class="forecast-card">
+                                <h5>${forecastDate}</h5>
+                                <img src="${forecastIcon}" alt=""/>
+                                <p>Min: ${min}&deg;C</p>
+                                <p>Max: ${max}&deg;C</p>
+                            </div>    
+                            `
+            }
+
+            return forecast
+          };
+          div.innerHTML = `
+            <div class="card" id="city-temp">
+                <h2>${city} <img src="${icon}" alt=""/></h2>
+                <p>Temperature: ${data.current.temp}&deg;C</p>
+                <p>Min: ${data.daily[0].temp.min}&deg;C</p>
+                <p>Max: ${data.daily[0].temp.max}&deg;C</p>
+                <p>Humidity: ${data.current.humidity}%</p>
+                <p>Wind Speed: ${data.current.wind_speed} m/s</p>
+            </div>
+            <div>
+                <h2>24h Ahead Forecast:</h2>
+                <div class="card" id="city-temp">
+                ${getHoursAhead(forecastHours)}
+                </div>
+            </div
+            <div id=display-forecast>
+                <h2>Days Left Forecast:</h2>
+                <div id="forecast-container">
+                ${getLeftDaysWeather(forecastDays, leftDays)}
+                </div>
+            </div
+          `
+          
+        };
+        const storeFavoriteCity = (datos) => {
+          const storeCity = `api/cities`
+          fetch(storeCity, {
+              method: "POST",
+              body: JSON.stringify(datos),
+              headers: {"Content-type": "application/json; charset=UTF-8"}
+            })
+            .then(res => {
+                if (!res.ok) throw res;
+                return res.json()
+            })
+            .then(data => {
+                alert(`${datos.post.name} was marked as favorite successfully!`);
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        };
+        if (!document.documentElement.hasAttribute("data-theme")) {
+          setTheme(localStorage.getItem("phx:theme") || "system");
+        }
+        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
+        window.addEventListener("phx:get-cities", (e) => getCities(e.target.id));
+        window.addEventListener("phx:get-favorite-cities", (e) => getFavoriteCities(e.target.id, e.target.dataset.phxTheme))
+       
+        window.ENV = {
+          api_key: '<%= System.get_env("API_KEY_WEATHER") %>'
+        }
+        
+      })();
+    </script>
+  </head>
+  <body>
+    {@inner_content}
+  </body>
+</html>
