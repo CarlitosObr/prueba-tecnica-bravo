@@ -52,7 +52,7 @@ With the help of the base template generated when creating a new Phoenix project
 <table>
   <tr>
     <td colspan="2" align="center" >
-      <img src="https://github.com/CarlitosObr/prueba-tecnica-bravo/blob/main/images/MVC.png" alt="MVC" width=100%>
+      <img src="https://github.com/CarlitosObr/prueba-tecnica-bravo/blob/main/images/MVC.png" alt="MVC" width=60%>
     <div align="center">
         <br><br>
         <div>A simple architecture such as MVC was used, which is easy to understand and manage, and fits well with the way the Phoenix framework is designed. With the help of controllers that receive user requests—whether from a UI or an API—calls are made to the models. In this case, a model was created to store favorite cities. The process was straightforward, as database migrations are defined through commands executed within the framework. Using various methods, the required queries can be performed, whether an insert, delete, update, or simply retrieving the necessary data so that the controller can return, through the view, the information initially requested by the user. This is the way the architecture works, and it was the approach used to resolve this problem.</div><br>
