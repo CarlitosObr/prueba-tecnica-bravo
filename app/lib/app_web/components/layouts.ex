@@ -147,6 +147,12 @@ defmodule AppWeb.Layouts do
     """
   end
 
+  @doc """
+  Provides search bar to look cities.
+
+  You can search for any city in the world.
+  """
+
   def search_bar(assigns) do
     ~H"""
     <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
