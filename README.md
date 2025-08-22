@@ -71,7 +71,7 @@ Additionally, exposing data is a poor practice. It is important to use more robu
 ## 🗣️ Possible improvements
 The application could be dockerized, using Docker Compose to run one container for a more robust database, such as PostgreSQL, and another container for the Phoenix application. This setup would allow for more reliable and realistic testing.
 
-Additionally, using more LiveView could accelerate development and allow for easier-to-implement templates. However, this approach may present challenges under high user concurrency since processing occurs server-side, and in some cases, client-side handling might be preferable to reduce latency and ensure appropriate response times.
+Additionally, using more LiveView could accelerate development and allow for easier-to-implement templates. Leveraging LiveView would also improve the UI with more dynamic views and interactive elements, enhancing the overall user experience. However, this approach may present challenges under high user concurrency since processing occurs server-side, and in some cases, client-side handling might be preferable to reduce latency and ensure appropriate response times.
 
 Implementing some form of caching could also improve the efficiency of displaying favorite cities, avoiding repeated database requests each time that view is accessed.
 
